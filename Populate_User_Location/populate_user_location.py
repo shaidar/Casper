@@ -17,7 +17,7 @@ JSS_API = "https://localhost:8443/JSSResource/computers/name/"	#Change hostname
 WP = "http://"		#URL for white pages username query
 ldap_server = " "	#example ldap.example.com
 ldap_searchbase = ""	#example ou=users,ou=people,dc=exmaple,dc=com
-domain_name = "" #example google.com
+domain_name = "" 	#example google.com
 casper_api_user = ""	#Casper API account that has 'update' computer privileges in JSS
 casper_api_password = ""
 
@@ -81,12 +81,12 @@ def wp_query(uname):
 		print "wp_query - name: ", name
 		username = [UNAME]
 		print "wp_query - username: ", username
-		email = [UNAME + "@mit.edu"]
+		email = [UNAME + "@" + domain_name]		
 		print "wp_query - email: ", email
 		phone = re.findall(r'phone:(.*)',wp_html)
 		print "wp_query - phone: ", phone
 		title = re.findall(r'title:(.*)',wp_html)
-		title = [t.replace('&','&amp;') for t in title]				#Check for ampersand and replace with &amp cause & is reserved char in xml
+		title = [t.replace('&','&amp;') for t in title]			#Check for ampersand and replace with &amp cause & is reserved char in xml
 		print "wp_query - title: ", title
 		department = re.findall(r'department:(.*)',wp_html)
 		department = [d.replace('&','&amp;') for d in department]	#Check for ampersand and replace with &amp cause & is reserved char in xml
