@@ -1,25 +1,6 @@
 #!/usr/bin/env python
 
-#	Copyright 2013 Sar Haidar
-
-#   Licensed under the Apache License, Version 2.0 (the "License");
-#   you may not use this file except in compliance with the License.
-#   You may obtain a copy of the License at
-#
-#   http://www.apache.org/licenses/LICENSE-2.0
-#
-#   Unless required by applicable law or agreed to in writing, software
-#   distributed under the License is distributed on an "AS IS" BASIS,
-#   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-#   See the License for the specific language governing permissions and
-#   limitations under the License.
-
-#	Possible future enhancements
-# 	If cert username matches what's in generated xml file, no need to query or update, just exit.
-#	Check JSS connection before running script
-#	If username matches what's in JSS, don't upload xml
-#	Replace os.popen with subprocess
-#	Send email when a sys.ext error is encountered
+# Copyright 2013 Sar Haidar, Massachusetts Institute of Technology, All Rights Reserved.
 
 
 import urllib2, re, os, sys
@@ -36,7 +17,7 @@ JSS_API = "https://localhost:8443/JSSResource/computers/name/"	#Change hostname
 WP = "http://"		#URL for white pages username query
 ldap_server = " "	#example ldap.example.com
 ldap_searchbase = ""	#example ou=users,ou=people,dc=exmaple,dc=com
-domain_name = "" #example google.com
+domain_name = "" 	#example google.com
 casper_api_user = ""	#Casper API account that has 'update' computer privileges in JSS
 casper_api_password = ""
 
@@ -100,12 +81,12 @@ def wp_query(uname):
 		print "wp_query - name: ", name
 		username = [UNAME]
 		print "wp_query - username: ", username
-		email = [UNAME + "@mit.edu"]
+		email = [UNAME + "@" + domain_name]		
 		print "wp_query - email: ", email
 		phone = re.findall(r'phone:(.*)',wp_html)
 		print "wp_query - phone: ", phone
 		title = re.findall(r'title:(.*)',wp_html)
-		title = [t.replace('&','&amp;') for t in title]				#Check for ampersand and replace with &amp cause & is reserved char in xml
+		title = [t.replace('&','&amp;') for t in title]			#Check for ampersand and replace with &amp cause & is reserved char in xml
 		print "wp_query - title: ", title
 		department = re.findall(r'department:(.*)',wp_html)
 		department = [d.replace('&','&amp;') for d in department]	#Check for ampersand and replace with &amp cause & is reserved char in xml
