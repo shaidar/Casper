@@ -2,13 +2,19 @@
 '''
 Copright 2013 Sar Haidar, Massachusetts Institute of Technology, All Rights Reserved.
 Last Modified: 11/12/13
+
+Description:
+I wrote this to get out of the hassle of packaging some apps or mounting some dmg's and then uploading the pkg to Casper.
+I wanted to upload to the Casper share what the vendor provides and then setup a policy to 'Cache' the app and then 
+run this script to install the cached file(s).
+
+Future improvements:
+- Automatically get startup_disk
 '''
-
-
 import glob, os, shutil, subprocess
 
 i = 0
-startup_disk = "/Volumes/Macintosh HD"
+startup_disk = "/Volumes/Macintosh HD"		# Make sure that this is correct on the client
 pkg_path = "/Library/Application Support/JAMF/Waiting Room/"
 mounted_pkg = ""
 mnt_pkg_path = ""
