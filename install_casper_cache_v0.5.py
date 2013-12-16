@@ -7,6 +7,12 @@ Description:
 I wrote this to get out of the hassle of packaging some apps or mounting some dmg's and then uploading the pkg to Casper.
 I wanted to upload to the Casper share what the vendor provides and then setup a policy to 'Cache' the app and then 
 run this script to install the cached file(s).
+Script reads files ending in 'dmg', 'zip', and 'pkg' in the client Casper cache directory and installs the software.
+
+How to use:
+First and foremost, make sure that the startup_disk (line 19) is accurate on the client or change accordingly
+Upload pkg, dmg, or zip to Casper share
+Setup policy to "cache" app instead of the default "install" and in that same policy tell it to run this script "After"
 
 Future improvements:
 - Automatically get startup_disk
