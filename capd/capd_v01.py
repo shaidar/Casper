@@ -19,7 +19,7 @@ from twython import Twython
 '''Improvements
 - Log file path/name is static
 - Policy force inventory updates after app install
-
+- Add function description
 '''
 
 # Global Variables
