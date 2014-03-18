@@ -13,13 +13,20 @@ import time
 import xml.etree.ElementTree as ET
 from subprocess import call, check_output, CalledProcessError
 #from fabfile import *
-from twython import Twython
+from twython import Twython, TwythonError
 #from bs4 import BeautifulSoup
 
 '''Improvements
 - Log file path/name is static
 - Policy force inventory updates after app install
 - Add function description
+- Change static twitter_count value
+- check_conf needs to check the following:
+	- availability of JSS
+	- caspershare mountable with provided creds
+	- api creds have all needed permissions
+	- twitter creds
+	- 
 '''
 
 # Global Variables
@@ -28,6 +35,9 @@ headers = {'content-type':'application/json', 'accept':'application/json'}
 twitter_applist = {}
 client_prototype_applist = {}
 updates_applist = {}
+api_account_permissions = ['Read Accounts', 'Create Categories', 'Read Categories', 'Read Computers', 'Update Computers', 'Create Packages',
+							'Read Packages', 'Update Packages', 'Delete Packages', 'Create Policies', 'Read Policies', 'Update Policies',
+							'Delete Policies', 'Read Sites']
 
 class Package(object):		#object is there to make it a new-style class
 	"All package attributes"
@@ -37,7 +47,6 @@ class Package(object):		#object is there to make it a new-style class
 		self.name = name
 		self.version = version
 		self.extension = extension
-		#self.prefix = config.get('local_config', 'pkg_file_prefix', 0)+'_'+time.strftime("%m%d%y")+"_"
 		self.prefix = time.strftime("%y%m%d%H%M")+"_"
 
 	def full_name(self):
@@ -171,7 +180,6 @@ def get_info():
 def init_logging(path_to_log):
 	#set up logging to file
 	logging.basicConfig(level=logging.DEBUG, format='%(asctime)s %(name)-12s %(levelname)-8s %(message)s', datefmt='%m/%d/%Y %I:%M:%S %p', filename=Software_Repo+'/logs/'+'capd.log', filemode='w')
-	#logging.basicConfig(level=logging.DEBUG, format='%(asctime)s %(name)-12s %(levelname)-8s %(message)s', datefmt='%m/%d/%Y %I:%M:%S %p', filename=Software_Repo+'/logs/'+'capd.log')
 	#define a Handler which writes DEBUG messages or higher to the sys.stderr
 	console = logging.StreamHandler()
 	console.setLevel(logging.INFO)
@@ -222,12 +230,55 @@ def create_conf():
 	with open(Software_Repo+'/conf/JSS_Server.conf', 'wb') as configfile:
 		config.write(configfile)
 
-def check_conf(JSS_Server_cfg):
+def check_conf():
 	''' Using info from conf file, try to connect to JSS and also mount share '''
+	logger = logging.getLogger('capd')
+	logger.debug("check_conf")
 	config = ConfigParser.ConfigParser()
 	config.read(Software_Repo+'/conf/JSS_Server.conf')
+	
+	#### check JSS connection ####
+	logger.info("Checking JSS Connection ...")
 	try:
-		r = requests.get(config.get('JSS_Server', 'jss_url', 0))
+		r = requests.get(config.get('JSS_Server', 'jss_url', 0), verify = False)
+		logger.info("JSS connection OK")
+	except requests.exceptions.RequestException as e:
+		logger.error("JSS Server problem with following error: %s", e)
+		sys.exit(1)
+
+	#### check API Privileges ####
+	logger.info("Checking API Privileges ...")
+	api_user_permissions = []
+	try:
+		url_api = config.get('JSS_Server', 'url_api', 0)
+		api_user = config.get('JSS_Server', 'api_user',0)
+		api_pass = config.get('JSS_Server', 'api_pass', 0)
+		r = requests.get(url_api+'accounts/username/'+api_user, auth = (api_user, api_pass) ,verify = False)
+	except requests.exceptions.RequestException as e:
+		logger.error("JSS Server problem with following error: %s", e)
+		sys.exit(1)
+	tree = ET.fromstring(r.content)
+	for elem in tree.iterfind('./privileges/jss_objects/'):
+		api_user_permissions.append(elem.text)
+	if not list(set(api_account_permissions) - set(api_user_permissions)):
+		logger.info("API Privilegs OK")
+	else:
+		logger.error("You appear to be missing the following API privilege(s): %s", list(set(api_account_permissions) - set(api_user_permissions)))
+		sys.exit(1)
+
+	#### check Twitter Auth ####
+	logger.info("Checking Twitter Auth ...")
+	try:
+		app_key = config.get('Twitter_Auth', 'twitter_app_key',0)
+		app_secret = config.get('Twitter_Auth', 'twitter_app_secret', 0)
+		oauth_token = config.get('Twitter_Auth', 'twitter_oauth_token',0)
+		oauth_token_secret = config.get('Twitter_Auth', 'twitter_oauth_token_secret',0)
+		twitter = Twython(app_key, app_secret, oauth_token, oauth_token_secret)
+		twitter.get("https://api.twitter.com/1.1/account/verify_credentials.json")
+		logger.info("Twitter Auth OK")
+	except TwythonError as e:
+		logger.error("Check twitter oauth credentials. %s", e)
+		sys.exit(1)
 
 def create_twitter_applist():
 	global twitter_applist
@@ -569,11 +620,12 @@ def mv_pkg_to_sequenced():
 
 def main():
 	get_info()
-	#mv_pkg_to_apps()
-	cs = JSS()
-	create_twitter_applist()
-	get_client_prototype_applist(cs.jss_computer_url(), cs.api_user, cs.api_pass)
-	compare_lists()
+	check_conf()
+	# mv_pkg_to_apps()
+	# cs = JSS()
+	# create_twitter_applist()
+	# get_client_prototype_applist(cs.jss_computer_url(), cs.api_user, cs.api_pass)
+	# compare_lists()
 	# packages = os.listdir(Software_Repo+"/apps")
 	# for pkg in packages:
 	# 	if not pkg.startswith('.') or pkg.endswith('.xml'):
