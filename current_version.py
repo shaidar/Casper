@@ -1,5 +1,10 @@
 #!/usr/bin/env python
 
+'''
+Copyright 2013 Sar Haidar, Massachusetts Institute of Technology, All Rights Reserved.
+
+'''
+
 import re
 import requests
 import time
