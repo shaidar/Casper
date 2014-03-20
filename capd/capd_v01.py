@@ -5,28 +5,26 @@ import ConfigParser
 import logging
 import json
 import os
+import plistlib
 import re
 import requests
 import shutil
 import sys
 import time
 import xml.etree.ElementTree as ET
-from subprocess import call, check_output, CalledProcessError
+from subprocess import call, check_output, check_call, CalledProcessError
 #from fabfile import *
 from twython import Twython, TwythonError
 #from bs4 import BeautifulSoup
 
-'''Improvements
+# Copyright 2013 Sar Haidar, Massachusetts Institute of Technology, All Rights Reserved.
+
+'''
+Improvements
 - Log file path/name is static
 - Policy force inventory updates after app install
 - Add function description
-- Change static twitter_count value
-- check_conf needs to check the following:
-	- availability of JSS
-	- caspershare mountable with provided creds
-	- api creds have all needed permissions
-	- twitter creds
-	- 
+- Change static twitter_count value 
 '''
 
 # Global Variables
@@ -38,6 +36,8 @@ updates_applist = {}
 api_account_permissions = ['Read Accounts', 'Create Categories', 'Read Categories', 'Read Computers', 'Update Computers', 'Create Packages',
 							'Read Packages', 'Update Packages', 'Delete Packages', 'Create Policies', 'Read Policies', 'Update Policies',
 							'Delete Policies', 'Read Sites']
+autopkg_pkg_path_plist_file = os.environ["HOME"]+"/Library/AutoPkg/Cache/autopkg_results.plist"
+autopkg_git_repo = "http://github.com/autopkg/recipes.git"
 
 class Package(object):		#object is there to make it a new-style class
 	"All package attributes"
@@ -231,7 +231,7 @@ def create_conf():
 		config.write(configfile)
 
 def check_conf():
-	''' Using info from conf file, try to connect to JSS and also mount share '''
+	''' Using info from conf file, check JSS connection, check API privileges, and check Twitter Auth'''
 	logger = logging.getLogger('capd')
 	logger.debug("check_conf")
 	config = ConfigParser.ConfigParser()
@@ -327,6 +327,20 @@ def compare_lists():
 		else:
 			updates_applist[key] = twitter_applist[key]
 			logger.info("Installed app: %s %s -------- new version: %s", key, client_prototype_applist[key], twitter_applist[key])
+			autopkg(twitter_applist[key])
+
+def autopkg(twitter_applist_pkg):
+	logger = logging.getLogger('capd')
+	logger.debug("autopkg")
+	try:
+		check_call(["autopkg", "run", twitter_applist_pkg+".download"])
+	except Exception:
+		logger.error("Package %s not found in autopkg", twitter_applist_pkg)
+		sys.exit(1)
+	f = plistlib.readPlist(autopkg_pkg_path_plist_file)
+	autopkg_pkg_path = f[0][2]['Output']['pathname']
+	call(['mv', autopkg_pkg_path, Software_Repo+'/apps/'])
+
 
 def add_pkg_prefix(pkg_prefix):
 	logger = logging.getLogger('capd')
