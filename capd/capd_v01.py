@@ -15,7 +15,6 @@ import xml.etree.ElementTree as ET
 from subprocess import call, check_output, check_call, CalledProcessError
 #from fabfile import *
 from twython import Twython, TwythonError
-#from bs4 import BeautifulSoup
 
 # Copyright 2013 Sar Haidar, Massachusetts Institute of Technology, All Rights Reserved.
 
@@ -327,7 +326,7 @@ def compare_lists():
 		else:
 			updates_applist[key] = twitter_applist[key]
 			logger.info("Installed app: %s %s -------- new version: %s", key, client_prototype_applist[key], twitter_applist[key])
-			autopkg(twitter_applist[key])
+			autopkg(key)
 
 def autopkg(twitter_applist_pkg):
 	logger = logging.getLogger('capd')
@@ -634,25 +633,25 @@ def mv_pkg_to_sequenced():
 
 def main():
 	get_info()
-	check_conf()
-	# mv_pkg_to_apps()
-	# cs = JSS()
-	# create_twitter_applist()
-	# get_client_prototype_applist(cs.jss_computer_url(), cs.api_user, cs.api_pass)
-	# compare_lists()
-	# packages = os.listdir(Software_Repo+"/apps")
-	# for pkg in packages:
-	# 	if not pkg.startswith('.') or pkg.endswith('.xml'):
-	# 		p = Package()
-	# 		add_pkg_prefix(p.prefix)
-	# 		p.name = os.path.splitext(pkg)[0]
-	# 		p.extension = os.path.splitext(pkg)[1]
-	# 		create_pkg_xml(cs.jss_pkg_id(),cs.category_name, p.pkg_xml(),p.full_name())
-	# 		post_pkg(cs.url,cs.jss_category_id(),p.pkg_xml(),cs.jss_pkg_url(),cs.api_user,cs.api_pass)
-	# 		upload_pkg_to_JSS(cs.share,cs.share_username, cs.share_password,cs.hostname,p.absolute_path())
-	# 		create_pol_xml(cs.jss_category_id(), cs.category_name, cs.jss_pol_id(), cs.jss_pkg_id(), p.pol_xml(), p.full_name())
-	# 		post_pol(cs.url, cs.api_user, cs.api_pass, cs.jss_pol_url(), p.pol_xml(),)
-	# 		mv_pkg_to_sequenced()
+	check_conf() 
+	mv_pkg_to_apps()
+	cs = JSS()
+	create_twitter_applist()
+	get_client_prototype_applist(cs.jss_computer_url(), cs.api_user, cs.api_pass)
+	compare_lists()
+	packages = os.listdir(Software_Repo+"/apps")
+	for pkg in packages:
+		if not pkg.startswith('.') or pkg.endswith('.xml'):
+			p = Package()
+			add_pkg_prefix(p.prefix)
+			p.name = os.path.splitext(pkg)[0]
+			p.extension = os.path.splitext(pkg)[1]
+			create_pkg_xml(cs.jss_pkg_id(),cs.category_name, p.pkg_xml(),p.full_name())
+			post_pkg(cs.url,cs.jss_category_id(),p.pkg_xml(),cs.jss_pkg_url(),cs.api_user,cs.api_pass)
+			upload_pkg_to_JSS(cs.share,cs.share_username, cs.share_password,cs.hostname,p.absolute_path())
+			create_pol_xml(cs.jss_category_id(), cs.category_name, cs.jss_pol_id(), cs.jss_pkg_id(), p.pol_xml(), p.full_name())
+			post_pol(cs.url, cs.api_user, cs.api_pass, cs.jss_pol_url(), p.pol_xml(),)
+			mv_pkg_to_sequenced()
 
 if __name__ == "__main__":
 	main()
