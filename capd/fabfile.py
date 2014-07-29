@@ -1,3 +1,5 @@
+# Copyright 2013 Sar Haidar, Massachusetts Institute of Technology, All Rights Reserved.
+
 '''
 Workflow:
 Using mac_host, revert client_prototype to snapshot.
@@ -64,9 +66,8 @@ def send_screencapture(pkg_name):
 	disconnect_all()
 
 @roles('mac_host')
-def start_vm(vmrun, vm_file):
+def start_vm():
 	run("%s -T fusion start %s" % (vmrun, vm_file))
-	print "Did not work"
 
 @roles('mac_host')
 def stop_vm():

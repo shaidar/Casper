@@ -667,17 +667,17 @@ def mv_pkg_to_sequenced():
 			logger.info("Moved %s to sequenced folder", pkg)
 
 def call_fabfile(pkg_name):
-	# execute(revert_snapshot_vm)
-	# execute(fabfile.start_vm(vmrun, vm_file))
-	# time.sleep(60)
-	# execute(check_policy)
-	# time.sleep(60)
+	execute(revert_snapshot_vm)
+	execute(start_vm)
+	time.sleep(60)
+	execute(check_policy)
+	time.sleep(60)
 	execute(run_app,pkg_name)
 	time.sleep(10)
 	execute(is_running, pkg_name)
 	execute(screencapture,pkg_name)
 	execute(send_screencapture,pkg_name)
-	# time.sleep(10)
+	time.sleep(10)
 
 def main():
 	get_info()
