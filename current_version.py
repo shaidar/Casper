@@ -68,8 +68,7 @@ def get_Firefox_ESR_ver():
 	name = 'Firefox_ESR'
 	mac_link = requests.get("http://www.mozilla.org/en-US/firefox/organizations/all.html", headers = mac_user_agent)
 	mac_soup = BeautifulSoup(mac_link.text)
-	mac_version = re.findall('-(.+)esr',str(mac_soup.select('a[href*="os=osx&lang=en-US"]')))
-	win_version = re.findall('-(.+)esr',str(mac_soup.select('a[href*="os=win&lang=en-US"]')))
+	mac_version = re.findall('-(.*?)esr',str(mac_soup.select('a[href*="os=osx&lang=en-US"]')))
 	update_mac_twitter_status(name, mac_version[0])
 	update_win_twitter_status(name, win_version[0])
 

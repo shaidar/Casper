@@ -23,8 +23,12 @@ from fabric.context_managers import settings
 
 '''
 Requirements
-For run_app method, the user needs to be logged in to the GUI otherwise it would fail
+- For run_app method, the user needs to be logged in to the GUI otherwise it would fail
+- mac_host and client_prototype have to have the same account name and password
+- mac_host and client_prototype have to have ssh enabled so that fabric can connect
+- client_prototype needs to be configured to auto-login
 '''
+
 parser = argparse.ArgumentParser()
 parser.add_argument("software_repository", help = "Full local path where the installers are located. example: /Users/joe/Documents/Apps/ ")
 args = parser.parse_args()
