@@ -20,12 +20,11 @@ from fabfile import *
 
 '''
 Improvements:
-- Log file path/name is static
-- Policy force inventory updates after app install
 - Add function description
 - Change static twitter_count value 
 - Unmount CasperShare at the end
 - upload_pkg_to_JSS: If you don't properly encode special characters in password, you will get a No route to host error
+- Add email notification
 '''
 
 # Global Variables
@@ -667,7 +666,7 @@ def mv_pkg_to_sequenced():
 			logger.info("Moved %s to sequenced folder", pkg)
 
 def call_fabfile(pkg_name):
-	execute(revert_snapshot_vm)
+	#execute(revert_snapshot_vm)
 	execute(start_vm)
 	time.sleep(60)
 	execute(check_policy)
