@@ -60,9 +60,6 @@ def get_Dropbox_ver():
 	win_version = re.findall('>(.+) for',str(win_soup.find_all(id="version_str")))
 	update_mac_twitter_status(name, mac_version[0])
 	update_win_twitter_status(name, win_version[0])
-	
-def get_Google_Chrome_ver():
-	pass
 
 def get_Firefox_ESR_ver():
 	name = 'Firefox'
