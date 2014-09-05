@@ -11,7 +11,7 @@ import time
 from bs4 import BeautifulSoup
 from twython import Twython
 
-# twitter_oauth is a .py file that you need to specify values for twitter app_key, app_secret, oauth_token, and oauth_token_secret
+# twitter_oauth is a .py file that u need to specify values for twitter app_key, app_secret, oauth_token, and oauth_token_secret
 from twitter_oauth import app_key, app_secret, oauth_token, oauth_token_secret
 
 # Global Variables
