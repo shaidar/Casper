@@ -13,9 +13,9 @@ Using client_prototype, is_running
 Using client_prototype, screencapture
 Using client_prototype, send_screencapture
 '''
-import argparse
 import ConfigParser
 import logging
+import os
 from fabric.api import *
 from fabric.tasks import execute
 from fabric.network import disconnect_all
@@ -29,10 +29,7 @@ Requirements
 - client_prototype needs to be configured to auto-login
 '''
 
-parser = argparse.ArgumentParser()
-parser.add_argument("software_repository", help = "Full local path where the installers are located. example: /Users/joe/Documents/Apps/ ")
-args = parser.parse_args()
-Software_Repo = args.software_repository
+Software_Repo = os.environ['HOME']+"/Documents/capd"
 config = ConfigParser.ConfigParser()
 config.read(Software_Repo+'/conf/JSS_Server.conf')
 
@@ -53,12 +50,20 @@ def check_policy():
 	sudo("jamf policy")
 
 @roles('client_prototype')
-def run_app(pkg_name):
-	run("open -a '%s'" % pkg_name)
+def run_app():
+	# Don't want program to terminate in case it couldn't launch app. Cisco VPN when installed is a folder
+	# instead of a .app, so this would've failed eventhough it was deployed by Casper.
+	with settings(warn_only=True):
+		pkg_name = run('cat /Users/adm/Documents/new_app.txt')
+		run("open -a '%s'" % pkg_name)
 
 @roles('client_prototype')
-def is_running(pkg_name):
-	run ("ps x |grep '%s' |grep -v grep" % pkg_name)
+def is_running():
+	# Don't want program to terminate in case it couldn't launch app. Cisco VPN when installed is a folder
+	# instead of a .app, so this would've failed eventhough it was deployed by Casper.
+	with settings(warn_only=True):	
+		pkg_name = run('cat /Users/adm/Documents/new_app.txt')
+		run ("ps x |grep '%s' |grep -v grep" % pkg_name)
 
 @roles('client_prototype')
 def screencapture(pkg_name):
@@ -66,7 +71,7 @@ def screencapture(pkg_name):
 
 @roles('client_prototype')
 def send_screencapture(pkg_name):
-	get('%s.jpg' % pkg_name, logs)
+	get('%s.jpg' % pkg_name, logs+'/screenshots/')
 	disconnect_all()
 
 @roles('mac_host')
