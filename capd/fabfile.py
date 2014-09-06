@@ -1,4 +1,4 @@
-# Copyright 2013 Sar Haidar, Massachusetts Institute of Technology, All Rights Reserved.
+#! /usr/bin/env python
 
 '''
 Workflow:
