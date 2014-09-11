@@ -76,7 +76,7 @@ def compare_lists():
 		for app in external_apps_list:
 			if app in twitter_applist:
 				client_prototype_dict[app] = twitter_applist[app]
-				xcall_autopkg(app)
+				call_autopkg(app)
 		json.dump(client_prototype_dict, open(client_prototype_file, 'wb'))
 	elif os.path.isfile(client_prototype_file):
 		client_prototype_dict = json.loads(open(client_prototype_file).read())
@@ -99,7 +99,7 @@ def call_autopkg(twitter_applist_pkg):
 	logger.debug("autopkg")
 	if os.path.exists("/Library/Autopkg"):
 		try:
-			check_call(["autopkg", "run", twitter_applist_pkg+".download"])
+			check_call(["/Library/Autopkg/autopkg", "run", twitter_applist_pkg+".download"])
 		except Exception:
 			logger.error("[-] Package %s not found in autopkg", twitter_applist_pkg)
 			sys.exit(1)
