@@ -5,8 +5,10 @@ import ConfigParser
 import requests
 import os
 import shutil
+import socket
 import sys
 from twython import Twython, TwythonError
+from smtplib import SMTP, SMTPException
 import xml.etree.ElementTree as ET
 
 # Global Variables
@@ -14,6 +16,7 @@ Software_Repo = os.environ['HOME']+"/Documents/capd"
 api_account_permissions = ['Read Accounts', 'Create Categories', 'Read Categories', 'Read Computers', 'Update Computers', 'Create Packages',
 							'Read Packages', 'Update Packages', 'Delete Packages', 'Create Policies', 'Read Policies', 'Update Policies',
 							'Delete Policies', 'Read Sites']
+headers = {'content-type':'text/xml', 'accept':'text/xml'}
 
 def check_conf(args):
 	''' Using info from conf file, check JSS connection, check API privileges, and check Twitter Auth'''
@@ -23,11 +26,10 @@ def check_conf(args):
 	config.read(Software_Repo+'/conf/JSS_Server.conf')
 	
 	#### check JSS connection ####
-	## Add name of JSS server being checked!!!!!!!! ###
 	logger.info("[+] Checking JSS Connection ...")
 	try:
 		r = requests.get(config.get('JSS_Server', 'jss_url', 0), timeout=10, verify=False)
-		logger.info("[+] JSS connection OK")
+		logger.info("[+] JSS connection is OK")
 	except requests.exceptions.RequestException as e:
 		logger.error("[-] JSS Server problem with following error: %s", e)
 		sys.exit(1)
@@ -39,7 +41,7 @@ def check_conf(args):
 		url_api = config.get('JSS_Server', 'url_api', 0)
 		api_user = config.get('JSS_Server', 'api_user', 0)
 		api_pass = config.get('JSS_Server', 'api_pass', 0)
-		r = requests.get(url_api+'accounts/username/'+api_user, auth=(api_user, api_pass), verify=False)
+		r = requests.get(url_api+'accounts/username/'+api_user, auth=(api_user, api_pass), verify=False, headers=headers)
 	except requests.exceptions.RequestException as e:
 		logger.error("[-] JSS Server problem with following error: %s", e)
 		sys.exit(1)
@@ -57,7 +59,7 @@ def check_conf(args):
 	try:
 		app_key = config.get('Twitter_Auth', 'twitter_app_key', 0)
 		if not app_key:
-			logger.info("[+] No Twitter App Key provided!")
+			logger.info("[-] No Twitter App Key provided!")
 			return
 		app_secret = config.get('Twitter_Auth', 'twitter_app_secret', 0)
 		oauth_token = config.get('Twitter_Auth', 'twitter_oauth_token', 0)
@@ -69,17 +71,30 @@ def check_conf(args):
 		logger.error("[-] Check twitter oauth credentials. %s", e)
 		sys.exit(1)
 
+#### check Mail Server ####
+	logger.info("Checking connection to Mailserver ...")
+	mailserver = config.get('Mail', 'mailserver', 0)
+	if not mailserver:
+		logger.info("[-] No Mailserver configured!")
+		return
+	try:
+		connect_to_mailserver = SMTP(mailserver, timeout=10)
+		mailserver_status, mailserver_message = connect_to_mailserver.helo()
+		if mailserver_status == 250:
+			logger.info("[+] Mailserver connection OK")
+	except socket.error as e:
+		logger.error("[-] Mailserver connection error: %s", e)
+		sys.exit(1)
+	except SMTPException as e:
+		logger.error("[-] Mailserver connection error: %s", e)
+		sys.exit(1)
+
 	#### clear apps and screenshots folder ####
-	logger.info("Cleaning out apps folder ...")
+	logger.info("[+] Cleaning out apps folder ...")
 	shutil.rmtree(Software_Repo+'/apps/')
 	shutil.rmtree(Software_Repo+'/logs/screenshots/')
 	os.mkdir(Software_Repo+'/apps')
 	os.mkdir(Software_Repo+'/logs/screenshots')
-
-
-	#### check cert and local App Server ####
-
-	#### check Mail Server ####
 
 def main():
 	check_conf()
