@@ -12,14 +12,6 @@ import xml.etree.ElementTree as ET
 from fabfile import *
 import external_apps, internal_apps, check_conf, jss_upload
 
-'''
-Improvements:
-- Change static twitter_count value 
-- Unmount CasperShare at the end
-- upload_pkg_to_JSS: If you don't properly encode special characters in password, you will get a No route to host error
-- Add email notification
-- Replace autopkg with caskroom
-'''
 
 # Global Variables
 Software_Repo = os.environ['HOME']+"/Documents/capd"
@@ -69,9 +61,9 @@ class JSS(object):
 		self.client_prototype_uuid = config.get('Client_Prototype', 'client_prototype_uuid', 0)
 
 	def jss_pkg_id(self):
-		'''Append existing JSS pkg_id's to a list and to find an unused value'''
+		'''Append existing JSS pkg_id's to a list and find an unused value'''
 		jss_pkg_id_list = []
-		r = requests.get(self.api_url+"packages", auth=(self.api_user, self.api_pass), verify=False)
+		r = requests.get(self.api_url+"packages", auth=(self.api_user, self.api_pass), verify=False, headers=headers)
 		tree = ET.fromstring(r.content)
 		for elem in tree.findall("./package/id"):
 			jss_pkg_id_list.append(elem.text)
@@ -85,7 +77,7 @@ class JSS(object):
 	def jss_pol_id(self):
 		'''Append existing JSS pol_id's to a list and to find an unused value'''
 		jss_pol_id_list = []
-		r = requests.get(self.api_url+"policies", auth=(self.api_user, self.api_pass), verify=False)
+		r = requests.get(self.api_url+"policies", auth=(self.api_user, self.api_pass), verify=False, headers=headers)
 		tree = ET.fromstring(r.content)
 		for elem in tree.findall("./policy/id"):
 			jss_pol_id_list.append(elem.text)
@@ -103,14 +95,14 @@ class JSS(object):
 		'''If category_name already in JSS, get category_id, otherwise append existing JSS category_id's to a list and find an unused value'''
 		jss_category_id_list = []
 		jss_category_name_dict = {}
-		r = requests.get(self.api_url+"categories", auth=(self.api_user, self.api_pass), verify=False)
+		r = requests.get(self.api_url+"categories", auth=(self.api_user, self.api_pass), verify=False, headers=headers)
 		tree = ET.fromstring(r.content)
 		for number, name in tree.findall("./category"):
 			jss_category_name_dict[name.text] = number.text
 		if self.category_name in jss_category_name_dict:
 			category_id = jss_category_name_dict[self.category_name]
 		else:
-			r = requests.get(self.api_url+"categories", auth=(self.api_user, self.api_pass), verify=False)
+			r = requests.get(self.api_url+"categories", auth=(self.api_user, self.api_pass), verify=False, headers=headers)
 			tree = ET.fromstring(r.content)
 			for elem in tree.findall("./category/id"):
 				jss_category_id_list.append(elem.text)
@@ -303,12 +295,12 @@ def update_internal_apps(args):
 	check_conf.check_conf(True)
 	internal_apps.download_internal_apps()
 	internal_apps.compare_app_checksum()
-	# pkgs = os.listdir(Software_Repo+'/internal_apps/')
-	# for pkg in pkgs:
-	# 	if pkg.lower().endswith(('.zip', '.pkg', '.mpkg', '.app', '.dmg')):
-	# 		shutil.move(Software_Repo+"/internal_apps/"+pkg, Software_Repo+"/apps")
-	# internal_apps.add_pkg_prefix()
-	# jss_upload.run_all()
+	pkgs = os.listdir(Software_Repo+'/internal_apps/')
+	for pkg in pkgs:
+		if pkg.lower().endswith(('.zip', '.pkg', '.mpkg', '.app', '.dmg')):
+			shutil.move(Software_Repo+"/internal_apps/"+pkg, Software_Repo+"/apps")
+	internal_apps.add_pkg_prefix()
+	jss_upload.run_all()
 
 def update_all_apps(args):
 	check_conf.check_conf(True)
