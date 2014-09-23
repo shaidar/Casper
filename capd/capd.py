@@ -15,7 +15,7 @@ import external_apps, internal_apps, check_conf, jss_upload
 
 # Global Variables
 Software_Repo = os.environ['HOME']+"/Documents/capd"
-headers = {'content-type':'application/json', 'accept':'application/json'}
+headers = {'content-type':'application/xml', 'accept':'application/xml'}
 
 class Package(object):
 	"All package attributes"
