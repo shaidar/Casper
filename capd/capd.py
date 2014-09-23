@@ -157,6 +157,7 @@ def init_logging():
 	logger = logging.getLogger('capd')
 
 def create_conf(args):
+	''' Check if conf file exists and either create it or replace it based on user input '''
 	logger = logging.getLogger('capd')
 	logger.debug("create_conf")
 	cfg_file = os.listdir(Software_Repo+"/conf")
