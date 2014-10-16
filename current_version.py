@@ -19,6 +19,7 @@ twitter = Twython(app_key, app_secret, oauth_token, oauth_token_secret)
 mac_user_agent = {'User-agent': 'Mozilla/5.0 (Macintosh)'}
 win_user_agent = {'User-agent': 'Mozilla/5.0 (compatible; MSIE 10.0; Windows NT 6.1; WOW64; Trident/6.0)'}
 exact_time = time.strftime("%m%d%y%H%M")
+new_mac_user_agent = {'User-agent':'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_9_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/28.0.1500.71 Safari/537.36'}
 
 # Functions to get versions of different software
 
@@ -72,9 +73,9 @@ def get_Firefox_ESR_ver():
 
 def get_Java_ver():
 	name = 'Java'
-	mac_link = requests.get("http://www.java.com/en/download/index.jsp", headers = mac_user_agent)
+	mac_link = requests.get("http://www.java.com/en/download/mac_download.jsp?locale=en", headers = new_mac_user_agent)
 	mac_soup = BeautifulSoup(mac_link.text)
-	mac_version = re.findall('Version (.+)',str(mac_soup.find('strong')))
+	mac_version = re.findall('Recommended Version (.+) \(filesize:',str(mac_soup.findAll('b')))
 	update_mac_twitter_status(name, mac_version[0])
 
 def get_Office_2011_ver():
