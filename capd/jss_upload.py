@@ -10,7 +10,7 @@ import time
 from subprocess import call, check_output, check_call, CalledProcessError
 import capd
 import mail
-from fabfile import *
+#from fabfile import *
 
 # Global Variables
 Software_Repo = os.environ['HOME']+"/Documents/capd"

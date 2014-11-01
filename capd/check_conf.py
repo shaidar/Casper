@@ -28,7 +28,7 @@ def check_conf(args):
 	#### check JSS connection ####
 	logger.info("[+] Checking JSS Connection ...")
 	try:
-		r = requests.get(config.get('JSS_Server', 'jss_url', 0), timeout=10, verify=False)
+		r = requests.get(config.get('JSS_Server', 'jss_url'), timeout=10, verify=False)
 		logger.info("[+] JSS connection is OK")
 	except requests.exceptions.RequestException as e:
 		logger.error("[-] JSS Server problem with following error: %s", e)
@@ -38,9 +38,9 @@ def check_conf(args):
 	logger.info("[+] Checking API Privileges ...")
 	api_user_permissions = []
 	try:
-		url_api = config.get('JSS_Server', 'url_api', 0)
-		api_user = config.get('JSS_Server', 'api_user', 0)
-		api_pass = config.get('JSS_Server', 'api_pass', 0)
+		url_api = config.get('JSS_Server', 'url_api')
+		api_user = config.get('JSS_Server', 'api_user')
+		api_pass = config.get('JSS_Server', 'api_pass')
 		r = requests.get(url_api+'accounts/username/'+api_user, auth=(api_user, api_pass), verify=False, headers=headers)
 	except requests.exceptions.RequestException as e:
 		logger.error("[-] JSS Server problem with following error: %s", e)
@@ -57,13 +57,13 @@ def check_conf(args):
 	#### check Twitter Auth ####
 	logger.info("[+] Checking Twitter Auth ...")
 	try:
-		app_key = config.get('Twitter_Auth', 'twitter_app_key', 0)
+		app_key = config.get('Twitter_Auth', 'twitter_app_key')
 		if not app_key:
 			logger.info("[-] No Twitter App Key provided!")
 			return
-		app_secret = config.get('Twitter_Auth', 'twitter_app_secret', 0)
-		oauth_token = config.get('Twitter_Auth', 'twitter_oauth_token', 0)
-		oauth_token_secret = config.get('Twitter_Auth', 'twitter_oauth_token_secret', 0)
+		app_secret = config.get('Twitter_Auth', 'twitter_app_secret')
+		oauth_token = config.get('Twitter_Auth', 'twitter_oauth_token')
+		oauth_token_secret = config.get('Twitter_Auth', 'twitter_oauth_token_secret')
 		twitter = Twython(app_key, app_secret, oauth_token, oauth_token_secret)
 		twitter.get("https://api.twitter.com/1.1/account/verify_credentials.json")
 		logger.info("[+] Twitter Auth OK")
@@ -73,7 +73,7 @@ def check_conf(args):
 
 #### check Mail Server ####
 	logger.info("Checking connection to Mailserver ...")
-	mailserver = config.get('Mail', 'mailserver', 0)
+	mailserver = config.get('Mail', 'mailserver')
 	if not mailserver:
 		logger.info("[-] No Mailserver configured!")
 		return

@@ -10,7 +10,7 @@ import sys
 import time
 import xml.etree.ElementTree as ET
 from fabfile import *
-import external_apps, internal_apps, check_conf, jss_upload
+import external_apps, check_conf, jss_upload
 
 
 # Global Variables
@@ -70,7 +70,7 @@ class JSS(object):
 		jss_pkg_id_list = map(int, jss_pkg_id_list)
 		available_pkg_id = max(jss_pkg_id_list) + 1
 		return available_pkg_id
-		
+
 	def jss_pkg_url(self):
 		return self.api_url+"packages/id/"+str(self.jss_pkg_id())
 
@@ -84,7 +84,7 @@ class JSS(object):
 		jss_pol_id_list = map(int, jss_pol_id_list)
 		available_pol_id = max(jss_pol_id_list) + 1
 		return available_pol_id
-	
+
 	def jss_pol_url(self):
 		return self.api_url+"policies/id/"+str(self.jss_pol_id())
 
@@ -291,32 +291,6 @@ def update_external_apps(args):
 	external_apps.add_pkg_prefix()
 	jss_upload.run_all()
 
-def update_internal_apps(args):
-	''' Download internal apps and run checksum. If checksum match, exit, otherwise upload to JSS '''
-	check_conf.check_conf(True)
-	internal_apps.download_internal_apps()
-	internal_apps.compare_app_checksum()
-	pkgs = os.listdir(Software_Repo+'/internal_apps/')
-	for pkg in pkgs:
-		if pkg.lower().endswith(('.zip', '.pkg', '.mpkg', '.app', '.dmg')):
-			shutil.move(Software_Repo+"/internal_apps/"+pkg, Software_Repo+"/apps")
-	internal_apps.add_pkg_prefix()
-	jss_upload.run_all()
-
-def update_all_apps(args):
-	check_conf.check_conf(True)
-	cs = JSS()
-	external_apps.create_twitter_applist()
-	external_apps.compare_lists()
-	internal_apps.download_internal_apps()
-	internal_apps.compare_app_checksum()
-	pkgs = os.listdir(Software_Repo+'/internal_apps/')
-	for pkg in pkgs:
-		if pkg.lower().endswith(('.zip', '.pkg', '.mpkg', '.app', '.dmg')):
-			shutil.move(Software_Repo+"/internal_apps/"+pkg, Software_Repo+"/apps")
-	internal_apps.add_pkg_prefix()
-	jss_upload.run_all()
-
 
 def main():
 	banner()
@@ -326,7 +300,7 @@ def main():
 		print "Config File not found!"
 		print "Running 'capd.py create_conf' to create config file and all required folders\n"
 		create_conf(True)
-	
+
 	# create the top-level parser
 	parser = argparse.ArgumentParser()
 	subparsers = parser.add_subparsers(title='subcommands', description='valid commands', help='additional help')
@@ -340,16 +314,8 @@ def main():
 	parser_check_conf.set_defaults(func=check_conf.check_conf)
 
 	#parser for update_external_apps
-	parser_check_conf = subparsers.add_parser('update_external_apps', help='update all external apps (ie freeware')
+	parser_check_conf = subparsers.add_parser('update_external_apps', help='update all external apps (ie freeware)')
 	parser_check_conf.set_defaults(func=update_external_apps)
-
-	#parser for update_internal_apps
-	parser_check_conf = subparsers.add_parser('update_internal_apps', help='update all internal apps')
-	parser_check_conf.set_defaults(func=update_internal_apps)
-
-	#parser for update_all_apps
-	parser_check_conf = subparsers.add_parser('update_all_apps', help='update all apps')
-	parser_check_conf.set_defaults(func=update_all_apps)
 
 	args = parser.parse_args()
 	args.func(args)

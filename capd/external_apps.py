@@ -41,7 +41,7 @@ def create_twitter_applist():
 	global twitter_applist
 	logger = logging.getLogger('capd')
 	logger.debug("create_twitter_applist")
-	config = ConfigParser.ConfigParser()
+	config = configparser.ConfigParser()
 	config.read(Software_Repo+'/conf/JSS_Server.conf')
 	app_key = config.get('Twitter_Auth', 'twitter_app_key', 0)
 	app_secret = config.get('Twitter_Auth', 'twitter_app_secret', 0)
@@ -65,7 +65,7 @@ def compare_lists():
 	global client_prototype_dict
 	logger = logging.getLogger('capd')
 	logger.debug("compare_lists")
-	config = ConfigParser.ConfigParser()
+	config = configparser.ConfigParser()
 	config.read(Software_Repo+'/conf/JSS_Server.conf')
 	external_apps_list = (config.get('External_Apps', 'external_apps_list')).split(',')
 	if not twitter_applist:
